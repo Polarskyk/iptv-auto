@@ -1,0 +1,27 @@
+# 这是订阅源列表，每行一个订阅地址
+# This is a list of subscription sources, with one subscription address per line
+https://raw.githubusercontent.com/vbskycn/iptv/refs/heads/master/tv/iptv4.m3u
+https://raw.githubusercontent.com/skddyj/iptv/refs/heads/main/IPTV.m3u
+# https://raw.githubusercontent.com/skddyj/iptv/refs/heads/main/IPTV.m3u
+https://raw.githubusercontent.com/kakaxi-1/IPTV/refs/heads/main/ipv4.txt
+https://raw.githubusercontent.com/onlylove2023/iptv/refs/heads/main/IPTV.m3u
+https://raw.githubusercontent.com/8080713/iptv-api666/refs/heads/main/output/result.m3u
+https://raw.githubusercontent.com/liuchuang0321/K-TV/refs/heads/master/output/user_result.m3u
+https://raw.githubusercontent.com/bj123sd/IPTV/refs/heads/main/hycg.txt
+# https://raw.githubusercontent.com/CCSH/IPTV/refs/heads/main/live_lite.m3u
+# https://raw.githubusercontent.com/HerbertHe/iptv-sources/refs/heads/gh-pages/cn.m3u
+https://raw.githubusercontent.com/cyh92/iptv-api-weishi/refs/heads/master/output/weishi.m3u
+https://raw.githubusercontent.com/zhi35/iptv/refs/heads/master/iptv.m3u
+https://raw.githubusercontent.com/cyh92/iptv-api-cctv/refs/heads/master/output/cctv.m3u
+https://raw.githubusercontent.com/0610840119/iptv-api/refs/heads/master/output/xp_result.m3u
+
+
+
+
+
+
+
+
+[WHITELIST]
+# 以下是订阅源的白名单，白名单内的订阅源获取的接口将不会参与测速，始终保留至结果最前。
+# This is the whitelist for subscription sources. Subscription sources in the whitelist will not participate in speed testing and will always be retained at the front of the results.
