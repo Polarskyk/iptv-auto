@@ -54,4 +54,4 @@ jobs:
             git push origin HEAD:${{ env.BRANCH_NAME }} --force
           fi
       - name: Load result
-        run: ./utils/load
+        run: ./utils/cn/load
