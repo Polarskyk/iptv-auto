@@ -37,6 +37,8 @@ jobs:
         run: pip3 install --user pipenv
       - name: Install dependecies
         run: pipenv --python 3.13 && pipenv install --deploy
+      - name: Install
+        run: sudo apt-get install -y build-essential pkg-config libcurl4-openssl-dev patchelf
       - name: Update
         run: pipenv run dev
       - name: restore result
@@ -51,3 +53,5 @@ jobs:
             git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
             git push origin HEAD:${{ env.BRANCH_NAME }} --force
           fi
+      - name: Load result
+        run: ./utils/load
