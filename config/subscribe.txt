@@ -2,7 +2,7 @@
 # This is a list of subscription sources, with one subscription address per line
 https://raw.githubusercontent.com/vbskycn/iptv/refs/heads/master/tv/iptv4.m3u
 https://raw.githubusercontent.com/skddyj/iptv/refs/heads/main/IPTV.m3u
-https://raw.githubusercontent.com/skddyj/iptv/refs/heads/main/IPTV.m3u
+# https://raw.githubusercontent.com/skddyj/iptv/refs/heads/main/IPTV.m3u
 https://raw.githubusercontent.com/kakaxi-1/IPTV/refs/heads/main/ipv4.txt
 https://raw.githubusercontent.com/onlylove2023/iptv/refs/heads/main/IPTV.m3u
 https://raw.githubusercontent.com/liuchuang0321/K-TV/refs/heads/master/output/user_result.m3u
