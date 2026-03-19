@@ -19,7 +19,9 @@ https://raw.githubusercontent.com/kakaxi-1/IPTV/refs/heads/main/ipv4.txt
 https://raw.githubusercontent.com/zking0914/iptv-api/refs/heads/master/output/result.m3u
 # https://raw.githubusercontent.com/CCSH/IPTV/refs/heads/main/live_lite.m3u 这是垃圾
 https://raw.githubusercontent.com/develop202/migu_video/refs/heads/main/interface.txt
-
+https://raw.githubusercontent.com/CCSH/IPTV/refs/heads/main/live_lite.m3u
+https://raw.githubusercontent.com/kakaxi-1/IPTV/refs/heads/main/ipv4.txt
+https://raw.githubusercontent.com/fgwxh/iptv-api/refs/heads/master/output/result.m3u
 
 [WHITELIST]
 # 以下是订阅源的白名单，白名单内的订阅源获取的接口将不会参与测速，始终保留至结果最前。
