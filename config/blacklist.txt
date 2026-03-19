@@ -3,3 +3,5 @@
 /audio/
 bxtv.3a.ink
 https://raw.githubusercontent.com/CCSH/IPTV/refs/heads/main/live_lite.m3u
+https://raw.githubusercontent.com/kakaxi-1/IPTV/refs/heads/main/ipv4.txt
+https://raw.githubusercontent.com/fgwxh/iptv-api/refs/heads/master/output/result.m3u
