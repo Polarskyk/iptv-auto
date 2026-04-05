@@ -53,5 +53,3 @@ jobs:
             git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
             git push origin HEAD:${{ env.BRANCH_NAME }} --force
           fi
-      - name: Load result
-        run: chmod +x ./utils/cn/load && ./utils/cn/load
