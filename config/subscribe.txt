@@ -311,7 +311,10 @@ https://github.com/250992941/iptv/raw/main/收集源.txt
 https://www.mpimg.cn/down.php/f9c94088c3916dd46978c3e4c8b741f8.txt
 http://192.168.31.3:5678/tv.m3u?url=rtp-1
 http://192.168.31.3:5678/tv.m3u?url=local
-
+https://www.xn--rgv465a.top/pro.json
+https://www.xn--rgv465a.top/lite.json
+https://www.xn--rgv465a.top/fine.json
+https://www.xn--rgv465a.top/zyplayer.json
 [WHITELIST]
 # 以下是订阅源的白名单，白名单内的订阅源获取的接口将不会参与测速，始终保留至结果最前。
 # This is the whitelist for subscription sources. Subscription sources in the whitelist will not participate in speed testing and will always be retained at the front of the results.
