@@ -70,27 +70,19 @@ jobs:
           $changelog | jq -Rs '.' | ForEach-Object { echo "changelog=$_"; echo "changelog=$_" >> $env:GITHUB_ENV }
         shell: pwsh
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create or update Release
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.version }}
-          release_name: v${{ env.version }}
+          name: v${{ env.version }}
           body: ${{ fromJSON(env.changelog) }}
           draft: false
           prerelease: false
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
+          files: |
+            dist/${{ env.name }}-v${{ env.version }}.zip
+          overwrite_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/${{ env.name }}-v${{ env.version }}.zip
-          asset_name: ${{ env.name }}-v${{ env.version }}.zip
-          asset_content_type: application/zip
 
   docker:
     runs-on: ubuntu-latest
