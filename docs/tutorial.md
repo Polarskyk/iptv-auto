@@ -282,19 +282,13 @@ docker compose up -d
 #### （1）拉取镜像
 
 ```bash
-docker pull guovern/iptv-api:latest
-```
-
-🚀 代理加速（若拉取失败可以使用该命令，但有可能拉取的是旧版本）：
-
-```bash
-docker pull docker.1ms.run/guovern/iptv-api:latest
+docker pull ghcr.io/polarskyk/iptv-auto:latest
 ```
 
 #### （2）运行容器
 
 ```bash
-docker run -d -p 80:8080 guovern/iptv-api
+docker run -d -p 80:8080 ghcr.io/polarskyk/iptv-auto:latest
 ```
 
 **环境变量：**

@@ -22,8 +22,8 @@
   <a href="https://github.com/Guovin/iptv-api/releases/latest">
     <img src="https://img.shields.io/github/downloads/guovin/iptv-api/total?label=GUI%20Downloads" />
   </a>
-  <a href="https://hub.docker.com/repository/docker/guovern/iptv-api">
-    <img src="https://img.shields.io/docker/pulls/guovern/iptv-api?label=Docker%20Pulls" />
+  <a href="https://github.com/polarskyk/iptv-auto/pkgs/container/iptv-auto">
+    <img src="https://img.shields.io/badge/GHCR-iptv--auto-blue" />
   </a>
   <a href="https://github.com/Guovin/iptv-api/fork">
     <img src="https://img.shields.io/github/forks/guovin/iptv-api?label=Forks" />
@@ -232,19 +232,13 @@ docker compose up -d
 ##### (1) Pull the image
 
 ```bash
-docker pull guovern/iptv-api:latest
-```
-
-🚀 Proxy acceleration (use this command if pulling fails, but it may download an older version):
-
-```bash
-docker pull docker.1ms.run/guovern/iptv-api:latest
+docker pull ghcr.io/polarskyk/iptv-auto:latest
 ```
 
 ##### (2) Run the container
 
 ```bash
-docker run -d -p 80:8080 guovern/iptv-api
+docker run -d -p 80:8080 ghcr.io/polarskyk/iptv-auto:latest
 ```
 
 **Environment variables:**

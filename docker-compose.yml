@@ -1,6 +1,6 @@
 services:
   iptv-api:
-    image: guovern/iptv-api:latest
+    image: ghcr.io/polarskyk/iptv-auto:latest
     container_name: iptv-api
     restart: unless-stopped
 

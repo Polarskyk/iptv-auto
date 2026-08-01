@@ -317,19 +317,13 @@ docker compose up -d
 #### (1) Pull the image
 
 ```bash
-docker pull guovern/iptv-api:latest
-```
-
-🚀 Proxy acceleration (use this command if pulling fails, but it may download an older version):
-
-```bash
-docker pull docker.1ms.run/guovern/iptv-api:latest
+docker pull ghcr.io/polarskyk/iptv-auto:latest
 ```
 
 #### (2) Run the container
 
 ```bash
-docker run -d -p 80:8080 guovern/iptv-api
+docker run -d -p 80:8080 ghcr.io/polarskyk/iptv-auto:latest
 ```
 
 **Environment variables:**
