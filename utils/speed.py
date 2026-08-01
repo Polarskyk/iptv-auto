@@ -312,57 +312,58 @@ async def get_result(url: str, headers: dict = None, resolution: str = None,
     try:
         url = quote(url, safe=':/?$&=@[]%').partition('$')[0]
         session = await get_shared_session()
-            res_headers = await get_headers(url, headers, session)
-            location = res_headers.get('Location')
-            if location:
-                info.update(await get_result(location, headers, resolution, filter_resolution, timeout))
-            else:
-                url_content = await get_url_content(url, headers, session, timeout)
-                if url_content:
-                    m3u8_obj = m3u8.loads(url_content)
-                    playlists = m3u8_obj.playlists
-                    segments = m3u8_obj.segments
-                    if playlists:
-                        best_playlist = max(m3u8_obj.playlists, key=lambda p: p.stream_info.bandwidth)
-                        playlist_url = urljoin(url, best_playlist.uri)
-                        playlist_content = await get_url_content(playlist_url, headers, session, timeout)
-                        if playlist_content:
-                            media_playlist = m3u8.loads(playlist_content)
-                            segment_urls = [urljoin(playlist_url, segment.uri) for segment in media_playlist.segments]
-                    else:
-                        segment_urls = [urljoin(url, segment.uri) for segment in segments]
-                    if not segment_urls:
-                        raise Exception("Segment urls not found")
+        res_headers = await get_headers(url, headers, session)
+        location = res_headers.get('Location')
+        if location:
+            info.update(await get_result(location, headers, resolution, filter_resolution, timeout))
+        else:
+            url_content = await get_url_content(url, headers, session, timeout)
+            if url_content:
+                m3u8_obj = m3u8.loads(url_content)
+                playlists = m3u8_obj.playlists
+                segments = m3u8_obj.segments
+                if playlists:
+                    best_playlist = max(m3u8_obj.playlists, key=lambda p: p.stream_info.bandwidth)
+                    playlist_url = urljoin(url, best_playlist.uri)
+                    playlist_content = await get_url_content(playlist_url, headers, session, timeout)
+                    if playlist_content:
+                        media_playlist = m3u8.loads(playlist_content)
+                        segment_urls = [urljoin(playlist_url, segment.uri) for segment in media_playlist.segments]
                 else:
-                    res_info = await get_speed_with_download(url, headers, session, timeout)
-                    info.update({'speed': res_info['speed'], 'delay': res_info['delay']})
-                start_time = time()
-                sem = _get_speed_semaphore()
-                async def _seg_task(u):
-                    async with sem:
-                        return await get_speed_with_download(u, headers, session, timeout)
+                    segment_urls = [urljoin(url, segment.uri) for segment in segments]
+                if not segment_urls:
+                    raise Exception("Segment urls not found")
+            else:
+                res_info = await get_speed_with_download(url, headers, session, timeout)
+                info.update({'speed': res_info['speed'], 'delay': res_info['delay']})
+            start_time = time()
+            sem = _get_speed_semaphore()
 
-                tasks = [_seg_task(ts_url) for ts_url in segment_urls[:5]]
-                results = await asyncio.gather(*tasks, return_exceptions=True)
-                total_size = sum(result['size'] for result in results if isinstance(result, dict))
-                total_time = sum(result['time'] for result in results if isinstance(result, dict))
-                info['speed'] = total_size / total_time / 1024 / 1024 if total_time > 0 else 0
-                info['delay'] = int(round((time() - start_time) * 1000))
-                try:
-                    if round(info['speed'], 2) == 0 and info['delay'] != -1:
-                        ff_out = await ffmpeg_url(url, headers, timeout)
-                        if ff_out:
-                            parsed_speed = _try_extract_speed_from_ffmpeg_output(ff_out)
-                            if parsed_speed is not None and parsed_speed > 0:
-                                info['speed'] = parsed_speed
-                            try:
-                                _, parsed_resolution = get_video_info(ff_out)
-                                if parsed_resolution:
-                                    info['resolution'] = parsed_resolution
-                            except Exception:
-                                pass
-                except Exception:
-                    pass
+            async def _seg_task(u):
+                async with sem:
+                    return await get_speed_with_download(u, headers, session, timeout)
+
+            tasks = [_seg_task(ts_url) for ts_url in segment_urls[:5]]
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            total_size = sum(result['size'] for result in results if isinstance(result, dict))
+            total_time = sum(result['time'] for result in results if isinstance(result, dict))
+            info['speed'] = total_size / total_time / 1024 / 1024 if total_time > 0 else 0
+            info['delay'] = int(round((time() - start_time) * 1000))
+            try:
+                if round(info['speed'], 2) == 0 and info['delay'] != -1:
+                    ff_out = await ffmpeg_url(url, headers, timeout)
+                    if ff_out:
+                        parsed_speed = _try_extract_speed_from_ffmpeg_output(ff_out)
+                        if parsed_speed is not None and parsed_speed > 0:
+                            info['speed'] = parsed_speed
+                        try:
+                            _, parsed_resolution = get_video_info(ff_out)
+                            if parsed_resolution:
+                                info['resolution'] = parsed_resolution
+                        except Exception:
+                            pass
+            except Exception:
+                pass
     except:
         pass
     finally:
@@ -376,20 +377,20 @@ async def get_delay_requests(url, timeout=speed_test_timeout, proxy=None):
     Get the delay of the url by requests
     """
     session = await get_shared_session()
-        start = time()
-        end = None
-        try:
-            async with session.get(url, timeout=timeout, proxy=proxy) as response:
-                if response.status == 404:
-                    return -1
-                content = await response.read()
-                if content:
-                    end = time()
-                else:
-                    return -1
-        except Exception as e:
-            return -1
-        return int(round((end - start) * 1000)) if end else -1
+    start = time()
+    end = None
+    try:
+        async with session.get(url, timeout=timeout, proxy=proxy) as response:
+            if response.status == 404:
+                return -1
+            content = await response.read()
+            if content:
+                end = time()
+            else:
+                return -1
+    except Exception:
+        return -1
+    return int(round((end - start) * 1000)) if end else -1
 
 
 def check_ffmpeg_installed_status():
