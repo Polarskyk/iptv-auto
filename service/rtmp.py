@@ -1,4 +1,8 @@
 import json
+try:
+    import orjson as _orjson
+except Exception:
+    _orjson = None
 import os
 import subprocess
 import sys
@@ -97,12 +101,19 @@ def start_hls_to_rtmp(host, channel_id):
         join_url(host, channel_id)
     ]
     try:
-        process = subprocess.Popen(
-            cmd,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            stdin=subprocess.DEVNULL
-        )
+        popen_kwargs = {
+            'stdout': subprocess.DEVNULL,
+            'stderr': subprocess.DEVNULL,
+            'stdin': subprocess.DEVNULL,
+        }
+        if sys.platform == 'win32':
+            popen_kwargs['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP
+        else:
+            popen_kwargs['start_new_session'] = True
+        # use persistent ffmpeg pool to start the process and control concurrent streams
+        from utils.ffmpeg_pool import start_persistent_ffmpeg
+
+        process = start_persistent_ffmpeg(cmd, popen_kwargs)
         print(t("msg.rtmp_publish").format(channel_id=channel_id, source=url))
     except Exception as e:
         return print(t("msg.error_start_ffmpeg_failed").format(info=e))
@@ -125,6 +136,13 @@ def _terminate_process_safe(process):
         try:
             process.kill()
             process.wait(timeout=5)
+        except Exception:
+            pass
+    finally:
+        # ensure persistent slot is released for processes started via ffmpeg pool
+        try:
+            from utils.ffmpeg_pool import release_persistent_slot
+            release_persistent_slot()
         except Exception:
             pass
 
@@ -188,7 +206,7 @@ def get_channel_data(channel_id):
         if data:
             channel_data = {
                 'url': data[0],
-                'headers': json.loads(data[1]) if data[1] else None
+                'headers': (_orjson.loads(data[1]) if _orjson else json.loads(data[1])) if data[1] else None
             }
     except Exception as e:
         print(t("msg.error_get_channel_data_from_database").format(info=e))
@@ -213,7 +231,11 @@ def start_rtmp_service():
     original_dir = os.getcwd()
     try:
         os.chdir(nginx_dir)
-        subprocess.Popen([nginx_path], shell=True)
+        # start nginx without shell and suppress output
+        popen_kwargs = {'stdout': subprocess.DEVNULL, 'stderr': subprocess.DEVNULL}
+        if sys.platform == 'win32':
+            popen_kwargs['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP
+        subprocess.Popen([nginx_path], **popen_kwargs)
     except Exception as e:
         print(t("msg.error_rtmp_service_start_failed").format(info=e))
     finally:
@@ -223,6 +245,9 @@ def start_rtmp_service():
 def stop_rtmp_service():
     try:
         os.chdir(nginx_dir)
-        subprocess.Popen([stop_path], shell=True)
+        popen_kwargs = {'stdout': subprocess.DEVNULL, 'stderr': subprocess.DEVNULL}
+        if sys.platform == 'win32':
+            popen_kwargs['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP
+        subprocess.Popen([stop_path], **popen_kwargs)
     except Exception as e:
         print(t("msg.error_rtmp_service_stop_failed").format(info=e))

@@ -1,12 +1,17 @@
 import os
 import re
-import xml.etree.ElementTree as ET
+try:
+    from lxml import etree as ET
+except Exception:
+    import xml.etree.ElementTree as ET
 from collections import defaultdict
-from concurrent.futures import ThreadPoolExecutor
+import asyncio
 from datetime import datetime, timedelta
 from time import time
 
-from requests import Session, exceptions
+from requests import exceptions
+from utils.async_requests import fetch_text
+from utils.requests.tools import get_requests
 from tqdm.asyncio import tqdm_asyncio
 
 import utils.constants as constants
@@ -19,8 +24,12 @@ from utils.tools import get_pbar_remaining, get_urls_from_file, opencc_t2s, join
 
 def parse_epg(epg_content):
     try:
-        parser = ET.XMLParser(encoding='UTF-8')
-        root = ET.fromstring(epg_content, parser=parser)
+        # lxml and stdlib ElementTree support XMLParser; lxml parser may be faster
+        try:
+            parser = ET.XMLParser(encoding='UTF-8')
+            root = ET.fromstring(epg_content, parser=parser)
+        except Exception:
+            root = ET.fromstring(epg_content)
     except ET.ParseError as e:
         print(f"Error parsing XML: {e}")
         print(f"Problematic content: {epg_content[:500]}")
@@ -72,37 +81,37 @@ async def get_epg(names=None, callback=None):
     start_time = time()
     result = defaultdict(list)
     all_result_verify = set()
-    session = Session()
 
-    def process_run(url):
+    async def process_run(url):
         nonlocal all_result_verify, result
         try:
-            response = None
+            content = None
             try:
-                response = (
-                    retry_func(
-                        lambda: session.get(
-                            url, timeout=config.request_timeout
-                        ),
-                        name=url,
-                    )
-                )
-            except exceptions.Timeout:
-                print(t("msg.request_timeout").format(name=url))
-            if response:
-                response.encoding = "utf-8"
-                content = response.text
-                if content:
-                    channels, programmes = parse_epg(content)
-                    for channel_id, display_name in channels.items():
-                        display_name = format_channel_name(display_name)
-                        if names and display_name not in names:
-                            continue
-                        if channel_id not in all_result_verify and display_name not in all_result_verify:
-                            if not channel_id.isdigit():
-                                all_result_verify.add(channel_id)
-                            all_result_verify.add(display_name)
-                            result[display_name] = programmes[channel_id]
+                # try async fetch
+                content = await fetch_text(url, timeout=config.request_timeout)
+            except Exception:
+                # fallback to retry_func with pooled sync requests
+                try:
+                    response = retry_func(lambda: get_requests(url, timeout=config.request_timeout), name=url)
+                    if response is not None:
+                        response.encoding = 'utf-8'
+                        content = response.text
+                except exceptions.Timeout:
+                    print(t("msg.request_timeout").format(name=url))
+                except Exception as e:
+                    print(t("msg.error_name_info").format(name=url, info=e))
+
+            if content:
+                channels, programmes = parse_epg(content)
+                for channel_id, display_name in channels.items():
+                    display_name = format_channel_name(display_name)
+                    if names and display_name not in names:
+                        continue
+                    if channel_id not in all_result_verify and display_name not in all_result_verify:
+                        if not channel_id.isdigit():
+                            all_result_verify.add(channel_id)
+                        all_result_verify.add(display_name)
+                        result[display_name] = programmes[channel_id]
         except Exception as e:
             print(t("msg.error_name_info").format(name=url, info=e))
         finally:
@@ -117,9 +126,13 @@ async def get_epg(names=None, callback=None):
                     int((pbar.n / urls_len) * 100),
                 )
 
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        for epg_url in urls:
-            executor.submit(process_run, epg_url)
-    session.close()
+    semaphore = asyncio.Semaphore(10)
+
+    async def _bounded(u):
+        async with semaphore:
+            return await process_run(u)
+
+    tasks = [asyncio.create_task(_bounded(u)) for u in urls]
+    await asyncio.gather(*tasks)
     pbar.close()
     return result

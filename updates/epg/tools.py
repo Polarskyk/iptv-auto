@@ -1,7 +1,12 @@
 import gzip
 import os
 import shutil
-import xml.etree.ElementTree as ET
+try:
+    from lxml import etree as ET
+    _have_lxml = True
+except Exception:
+    import xml.etree.ElementTree as ET
+    _have_lxml = False
 from datetime import datetime
 from xml.dom import minidom
 
@@ -19,7 +24,11 @@ def write_to_xml(programmes, path):
     target_dir = os.path.dirname(path)
     os.makedirs(target_dir, exist_ok=True)
     with open(path, 'w', encoding='utf-8') as f:
-        f.write(minidom.parseString(ET.tostring(root, 'utf-8')).toprettyxml(indent='\t', newl='\n'))
+        if _have_lxml:
+            xml_bytes = ET.tostring(root, encoding='utf-8', pretty_print=True)
+            f.write(xml_bytes.decode('utf-8'))
+        else:
+            f.write(minidom.parseString(ET.tostring(root, 'utf-8')).toprettyxml(indent='\t', newl='\n'))
 
 
 def compress_to_gz(input_path, output_path):

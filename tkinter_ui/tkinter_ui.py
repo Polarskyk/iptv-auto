@@ -45,6 +45,12 @@ class TkinterUI:
         self.update_running = False
         self.result_url = None
         self.now = None
+        # background asyncio loop for scheduling update tasks
+        self._bg_loop = asyncio.new_event_loop()
+        def _loop_runner():
+            asyncio.set_event_loop(self._bg_loop)
+            self._bg_loop.run_forever()
+        threading.Thread(target=_loop_runner, daemon=True, name="tk-bg-loop").start()
 
     def on_closing(self):
         if messagebox.askyesno("提示",
@@ -116,17 +122,16 @@ class TkinterUI:
         if self.now:
             self.update_source.stop()
 
-        loop = asyncio.new_event_loop()
-
-        def run_loop():
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(self.run_update())
-
-        self.thread = threading.Thread(target=run_loop, daemon=True)
-        self.thread.start()
+        # schedule run_update on background asyncio loop
+        asyncio.run_coroutine_threadsafe(self.run_update(), self._bg_loop)
 
     def stop(self):
-        asyncio.get_event_loop().stop()
+        try:
+            # stop background loop safely (only if needed)
+            if self._bg_loop and not self._bg_loop.is_closed():
+                self._bg_loop.call_soon_threadsafe(self._bg_loop.stop)
+        except Exception:
+            pass
 
     def update_progress(self, title, progress, finished=False, url=None, now=None):
         self.progress_bar["value"] = progress

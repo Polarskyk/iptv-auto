@@ -28,6 +28,8 @@ m3u8 = "==6.0.0"
 pytz = "==2025.1"
 pystray = "==0.19.5"
 ipip-ipdb = "==1.6.1"
+orjson = "*"
+lxml = "*"
 
 [requires]
 python_version = "3.13"

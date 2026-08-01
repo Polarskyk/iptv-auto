@@ -1,6 +1,6 @@
 import os
 from collections import defaultdict
-from concurrent.futures import ThreadPoolExecutor
+import asyncio
 from logging import INFO
 from time import time
 
@@ -10,7 +10,7 @@ import utils.constants as constants
 from utils.channel import format_channel_name
 from utils.config import config
 from utils.i18n import t
-from utils.requests.tools import get_soup_requests
+from utils.async_requests import get_soup_aiohttp
 from utils.retry import retry_func
 from utils.tools import (
     merge_objects,
@@ -56,28 +56,25 @@ async def get_channels_by_subscribe_urls(
         )
     logger = get_logger(constants.nomatch_log_path, level=INFO, init=True)
 
-    def process_subscribe_channels(subscribe_info: str | dict) -> defaultdict:
+    async def process_subscribe_channels(subscribe_info: str | dict) -> defaultdict:
         subscribe_url = subscribe_info
         channels = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
         in_whitelist = whitelist and (subscribe_url in whitelist)
         try:
             response = None
             try:
-                response = (
-                    retry_func(
-                        lambda: get_soup_requests(
-                            subscribe_url, timeout=config.request_timeout
-                        ),
-                        name=subscribe_url,
-                    )
-                    if retry
-                    else get_soup_requests(subscribe_url, timeout=config.request_timeout)
-                )
+                # use async get_soup_aiohttp with retry_func wrapping a sync call
+                if retry:
+                    # retry_func expects a callable; wrap the coroutine
+                    response = await retry_func(lambda: get_soup_aiohttp(subscribe_url, timeout=config.request_timeout), name=subscribe_url)
+                else:
+                    response = await get_soup_aiohttp(subscribe_url, timeout=config.request_timeout)
             except Exception as e:
                 print(f"{subscribe_url}: {e}")
             if response:
                 response.encoding = "utf-8"
-                content = response.text
+                # response is a BeautifulSoup object returned by get_soup_aiohttp
+                content = response.prettify() if hasattr(response, 'prettify') else str(response)
                 m3u_type = True if "#EXTM3U" in content else False
                 data = get_name_value(
                     content,
@@ -128,12 +125,13 @@ async def get_channels_by_subscribe_urls(
                 )
             return channels
 
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        futures = [
-            executor.submit(process_subscribe_channels, subscribe_url)
-            for subscribe_url in urls
-        ]
-        for future in futures:
-            subscribe_results = merge_objects(subscribe_results, future.result())
+    # run subscriptions concurrently using asyncio tasks
+    tasks = [asyncio.create_task(process_subscribe_channels(subscribe_url)) for subscribe_url in urls]
+    for coro in asyncio.as_completed(tasks):
+        try:
+            res = await coro
+            subscribe_results = merge_objects(subscribe_results, res)
+        except Exception:
+            pass
     pbar.close()
     return subscribe_results

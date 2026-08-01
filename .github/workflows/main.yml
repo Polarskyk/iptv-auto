@@ -32,7 +32,7 @@ jobs:
           update-environment: true
           cache: 'pipenv'
       - name: Install FFmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg libxml2-dev libxslt1-dev build-essential python3-dev cargo rustc
       - name: Install pipenv
         run: pip3 install --user pipenv
       - name: Install dependecies

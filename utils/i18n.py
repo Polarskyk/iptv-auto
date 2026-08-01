@@ -1,4 +1,8 @@
 import json
+try:
+    import orjson as _orjson
+except Exception:
+    _orjson = None
 import os
 from typing import Dict
 
@@ -22,8 +26,12 @@ def _load_locale(lang: str) -> Dict[str, str]:
         file_path = fallback_path
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        if _orjson:
+            with open(file_path, "rb") as f:
+                data = _orjson.loads(f.read())
+        else:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
     except Exception:
         data = {}
 

@@ -1,6 +1,11 @@
 import asyncio
 import http.cookies
 import json
+try:
+    import orjson as _orjson  # fast C JSON
+except Exception:
+    _orjson = None
+from collections import OrderedDict
 import re
 import subprocess
 from time import time
@@ -8,6 +13,7 @@ from urllib.parse import quote, urljoin
 
 import m3u8
 from aiohttp import ClientSession, TCPConnector
+from utils.http import get_shared_session
 from multidict import CIMultiDictProxy
 
 import utils.constants as constants
@@ -18,7 +24,7 @@ from utils.tools import get_resolution_value
 from utils.types import TestResult, ChannelTestResult, TestResultCacheData
 
 http.cookies._is_legal_key = lambda _: True
-cache: TestResultCacheData = {}
+cache: TestResultCacheData = OrderedDict()
 speed_test_timeout = config.speed_test_timeout
 speed_test_filter_host = config.speed_test_filter_host
 open_filter_resolution = config.open_filter_resolution
@@ -37,9 +43,56 @@ default_ipv6_result = {
     'resolution': default_ipv6_resolution
 }
 
+_speed_test_semaphore: asyncio.Semaphore | None = None
+_speed_cache_key_limit = max(100, int(getattr(config, "urls_limit", 10)) * 50)
+_speed_cache_sample_limit = max(5, int(getattr(config, "speed_test_limit", 5)) * 4)
+
+def _get_speed_semaphore() -> asyncio.Semaphore:
+    global _speed_test_semaphore
+    if _speed_test_semaphore is None:
+        limit = max(1, int(getattr(config, 'speed_test_limit', 5)))
+        _speed_test_semaphore = asyncio.Semaphore(limit)
+    return _speed_test_semaphore
+
+
+def _get_cached_result(key: str):
+    """Get cached result and mark it as recently used."""
+    if key not in cache:
+        return None
+    cache.move_to_end(key)
+    return cache[key]
+
+
+def _put_cached_result(key: str, result: dict) -> None:
+    """Insert a cached result while keeping cache size bounded."""
+    if not key:
+        return
+
+    current = cache.get(key)
+    if current is None:
+        cache[key] = [result]
+    else:
+        current.append(result)
+        if len(current) > _speed_cache_sample_limit:
+            del current[:-_speed_cache_sample_limit]
+        cache.move_to_end(key)
+
+    while len(cache) > _speed_cache_key_limit:
+        cache.popitem(last=False)
+
 min_measure_time = 1.0
 stability_window = 4
 stability_threshold = 0.12
+
+# Precompile regexes used repeatedly
+_re_video = re.compile(r"video:\s*([0-9]+(?:\.[0-9]+)?)\s*(KiB|MiB|kB|B|kb|KB)?", re.IGNORECASE)
+_re_audio = re.compile(r"audio:\s*([0-9]+(?:\.[0-9]+)?)\s*(KiB|MiB|kB|B|kb|KB)?", re.IGNORECASE)
+_re_time = re.compile(r"time=\s*([0-9:\.]+)")
+_re_lsize = re.compile(r"Lsize=\s*([0-9]+(?:\.[0-9]+)?)\s*(KiB|kB|MiB|B|kb|KB)?", re.IGNORECASE)
+_re_size = re.compile(r"size=\s*([0-9]+(?:\.[0-9]+)?)\s*(KiB|kB|MiB|B|kb|KB)?", re.IGNORECASE)
+_re_bitrate = re.compile(r"bitrate=\s*([0-9\.]+)\s*k?bits/s", re.IGNORECASE)
+_re_frame = re.compile(r"frame=(\d+)")
+_re_resolution = re.compile(r"(\d{3,4}x\d{3,4})")
 
 
 async def get_speed_with_download(url: str, headers: dict = None, session: ClientSession = None,
@@ -55,8 +108,8 @@ async def get_speed_with_download(url: str, headers: dict = None, session: Clien
     last_sample_size = 0
 
     if session is None:
-        session = ClientSession(connector=TCPConnector(ssl=False), trust_env=True)
-        created_session = True
+        session = await get_shared_session()
+        created_session = False
     else:
         created_session = False
 
@@ -112,8 +165,8 @@ async def get_headers(url: str, headers: dict = None, session: ClientSession = N
     Get the headers of the url
     """
     if session is None:
-        session = ClientSession(connector=TCPConnector(ssl=False), trust_env=True)
-        created_session = True
+        session = await get_shared_session()
+        created_session = False
     else:
         created_session = False
     res_headers = {}
@@ -134,8 +187,8 @@ async def get_url_content(url: str, headers: dict = None, session: ClientSession
     Get the content of the url
     """
     if session is None:
-        session = ClientSession(connector=TCPConnector(ssl=False), trust_env=True)
-        created_session = True
+        session = await get_shared_session()
+        created_session = False
     else:
         created_session = False
     content = ""
@@ -206,14 +259,14 @@ def _try_extract_speed_from_ffmpeg_output(output: str) -> float | None:
 
     try:
         total_bytes = 0.0
-        m_video = re.search(r"video:\s*([0-9]+(?:\.[0-9]+)?)\s*(KiB|MiB|kB|B|kb|KB)?", output, re.IGNORECASE)
-        m_audio = re.search(r"audio:\s*([0-9]+(?:\.[0-9]+)?)\s*(KiB|MiB|kB|B|kb|KB)?", output, re.IGNORECASE)
+        m_video = _re_video.search(output)
+        m_audio = _re_audio.search(output)
         if m_video:
             total_bytes += parse_size_value(m_video.group(1), m_video.group(2))
         if m_audio:
             total_bytes += parse_size_value(m_audio.group(1), m_audio.group(2))
 
-        m_time = re.search(r"time=\s*([0-9:\.]+)", output)
+        m_time = _re_time.search(output)
         if total_bytes > 0 and m_time:
             secs = _parse_time_to_seconds(m_time.group(1))
             if secs > 0:
@@ -222,9 +275,9 @@ def _try_extract_speed_from_ffmpeg_output(output: str) -> float | None:
         pass
 
     try:
-        m_lsize = re.search(r"Lsize=\s*([0-9]+(?:\.[0-9]+)?)\s*(KiB|kB|MiB|B|kb|KB)?", output, re.IGNORECASE)
-        m_size = re.search(r"size=\s*([0-9]+(?:\.[0-9]+)?)\s*(KiB|kB|MiB|B|kb|KB)?", output, re.IGNORECASE)
-        m_time = re.search(r"time=\s*([0-9:\.]+)", output)
+        m_lsize = _re_lsize.search(output)
+        m_size = _re_size.search(output)
+        m_time = _re_time.search(output)
         size_bytes = 0.0
         if m_lsize and m_lsize.group(1).upper() != "N/A":
             size_bytes = parse_size_value(m_lsize.group(1), m_lsize.group(2))
@@ -238,7 +291,7 @@ def _try_extract_speed_from_ffmpeg_output(output: str) -> float | None:
         pass
 
     try:
-        m_bitrate = re.search(r"bitrate=\s*([0-9\.]+)\s*k?bits/s", output)
+        m_bitrate = _re_bitrate.search(output)
         if m_bitrate:
             kbps = float(m_bitrate.group(1))
             return kbps / 8.0 / 1024.0
@@ -258,7 +311,7 @@ async def get_result(url: str, headers: dict = None, resolution: str = None,
     location = None
     try:
         url = quote(url, safe=':/?$&=@[]%').partition('$')[0]
-        async with ClientSession(connector=TCPConnector(ssl=False), trust_env=True) as session:
+        session = await get_shared_session()
             res_headers = await get_headers(url, headers, session)
             location = res_headers.get('Location')
             if location:
@@ -284,7 +337,12 @@ async def get_result(url: str, headers: dict = None, resolution: str = None,
                     res_info = await get_speed_with_download(url, headers, session, timeout)
                     info.update({'speed': res_info['speed'], 'delay': res_info['delay']})
                 start_time = time()
-                tasks = [get_speed_with_download(ts_url, headers, session, timeout) for ts_url in segment_urls[:5]]
+                sem = _get_speed_semaphore()
+                async def _seg_task(u):
+                    async with sem:
+                        return await get_speed_with_download(u, headers, session, timeout)
+
+                tasks = [_seg_task(ts_url) for ts_url in segment_urls[:5]]
                 results = await asyncio.gather(*tasks, return_exceptions=True)
                 total_size = sum(result['size'] for result in results if isinstance(result, dict))
                 total_time = sum(result['time'] for result in results if isinstance(result, dict))
@@ -317,9 +375,7 @@ async def get_delay_requests(url, timeout=speed_test_timeout, proxy=None):
     """
     Get the delay of the url by requests
     """
-    async with ClientSession(
-            connector=TCPConnector(ssl=False), trust_env=True
-    ) as session:
+    session = await get_shared_session()
         start = time()
         end = None
         try:
@@ -340,14 +396,12 @@ def check_ffmpeg_installed_status():
     """
     Check ffmpeg is installed
     """
-    status = False
+    # Use shutil.which to avoid spawning a process just to check presence
     try:
-        result = subprocess.run(
-            ["ffmpeg", "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-        status = result.returncode == 0
-    except FileNotFoundError:
-        status = False
+        import shutil
+        return shutil.which("ffmpeg") is not None
+    except Exception:
+        return False
     except Exception as e:
         print(e)
     finally:
@@ -356,6 +410,9 @@ def check_ffmpeg_installed_status():
         else:
             print(t("msg.ffmpeg_not_installed"))
         return status
+
+
+from utils.ffmpeg_pool import run_ffmpeg
 
 
 async def ffmpeg_url(url, headers=None, timeout=speed_test_timeout):
@@ -372,94 +429,18 @@ async def ffmpeg_url(url, headers=None, timeout=speed_test_timeout):
     proc = None
     stderr_parts: list[bytes] = []
     speed_samples: list[float] = []
-    bitrate_re = re.compile(r"bitrate=\s*([0-9\.]+)\s*k?bits/s", re.IGNORECASE)
+    bitrate_re = _re_bitrate
     start = time()
 
+    # Use centralized ffmpeg pool to run subprocess and collect output
+    out, err = await run_ffmpeg(args, timeout)
+    if out is None and err is None:
+        return None
+    stderr_bytes = b"".join((err or b"", out or b""))
     try:
-        proc = await asyncio.create_subprocess_exec(
-            *args, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-        )
-
-        while True:
-            try:
-                line = await asyncio.wait_for(proc.stderr.readline(), timeout=0.5)
-            except asyncio.TimeoutError:
-                line = b''
-            now = time()
-            elapsed = now - start
-
-            if line == b'':
-                if proc.returncode is None:
-                    if elapsed >= timeout:
-                        proc.kill()
-                        await proc.wait()
-                        break
-                    await asyncio.sleep(0)
-                    if proc.returncode is not None:
-                        break
-                    continue
-                else:
-                    break
-
-            stderr_parts.append(line)
-
-            try:
-                text = line.decode(errors="ignore")
-            except Exception:
-                text = ""
-
-            m = bitrate_re.search(text)
-            if m:
-                try:
-                    kbps = float(m.group(1))
-                    mbps = kbps / 8.0 / 1024.0
-                    speed_samples.append(mbps)
-                except Exception:
-                    pass
-
-            if elapsed >= min_measure_time and len(speed_samples) >= stability_window:
-                window = speed_samples[-stability_window:]
-                mean = sum(window) / len(window)
-                if mean > 0 and (max(window) - min(window)) / mean < stability_threshold:
-                    try:
-                        proc.kill()
-                    except Exception:
-                        pass
-                    await proc.wait()
-                    break
-
-        try:
-            out, err = await asyncio.wait_for(proc.communicate(), timeout=1)
-            if err:
-                stderr_parts.append(err)
-            if out:
-                stderr_parts.append(out)
-        except Exception:
-            try:
-                proc.kill()
-            except Exception:
-                pass
-            await proc.wait()
-    except asyncio.TimeoutError:
-        if proc:
-            try:
-                proc.kill()
-            except Exception:
-                pass
-            await proc.wait()
+        return stderr_bytes.decode(errors="ignore")
     except Exception:
-        if proc:
-            try:
-                proc.kill()
-            except Exception:
-                pass
-            await proc.wait()
-    finally:
-        stderr_bytes = b"".join(stderr_parts)
-        try:
-            return stderr_bytes.decode(errors="ignore")
-        except Exception:
-            return None
+        return None
 
 
 async def get_resolution_ffprobe(url: str, headers: dict = None, timeout: int = speed_test_timeout) -> str | None:
@@ -468,6 +449,7 @@ async def get_resolution_ffprobe(url: str, headers: dict = None, timeout: int = 
     """
     resolution = None
     proc = None
+    sem = _get_speed_semaphore()
     try:
         probe_args = [
             'ffprobe',
@@ -478,12 +460,17 @@ async def get_resolution_ffprobe(url: str, headers: dict = None, timeout: int = 
             "-of", 'json',
             url
         ]
-        proc = await asyncio.create_subprocess_exec(*probe_args, stdout=asyncio.subprocess.PIPE,
-                                                    stderr=asyncio.subprocess.PIPE)
-        out, _ = await asyncio.wait_for(proc.communicate(), timeout)
-        video_stream = json.loads(out.decode('utf-8'))["streams"][0]
-        resolution = f"{video_stream['width']}x{video_stream['height']}"
-    except:
+        out, err = await run_ffmpeg(probe_args, timeout)
+        if out:
+            try:
+                if _orjson:
+                    video_stream = _orjson.loads(out)["streams"][0]
+                else:
+                    video_stream = json.loads(out.decode('utf-8'))["streams"][0]
+            except Exception:
+                video_stream = None
+            resolution = f"{video_stream['width']}x{video_stream['height']}"
+    except Exception:
         if proc:
             proc.kill()
     finally:
@@ -500,10 +487,10 @@ def get_video_info(video_info):
     resolution = None
     if video_info is not None:
         info_data = video_info.replace(" ", "")
-        matches = re.findall(r"frame=(\d+)", info_data)
+        matches = _re_frame.findall(info_data)
         if matches:
             frame_size = int(matches[-1])
-        match = re.search(r"(\d{3,4}x\d{3,4})", video_info)
+        match = _re_resolution.search(video_info)
         if match:
             resolution = match.group(0)
     return frame_size, resolution
@@ -541,8 +528,9 @@ def get_speed_result(key: str) -> TestResult:
     """
     Get the speed result of the url
     """
-    if key in cache:
-        return get_avg_result(cache[key])
+    cached = _get_cached_result(key)
+    if cached:
+        return get_avg_result(cached)
     else:
         return {'speed': 0, 'delay': -1, 'resolution': 0}
 
@@ -558,8 +546,9 @@ async def get_speed(data, headers=None, ipv6_proxy=None, filter_resolution=open_
     headers = {**request_headers, **(headers or {})}
     try:
         cache_key = data['host'] if speed_test_filter_host else url
-        if cache_key and cache_key in cache:
-            result = get_avg_result(cache[cache_key])
+        cached = _get_cached_result(cache_key) if cache_key else None
+        if cached:
+            result = get_avg_result(cached)
         else:
             if data['ipv_type'] == "ipv6" and ipv6_proxy:
                 result.update(default_ipv6_result)
@@ -573,7 +562,7 @@ async def get_speed(data, headers=None, ipv6_proxy=None, filter_resolution=open_
             else:
                 result.update(await get_result(url, headers, resolution, filter_resolution, timeout))
             if cache_key:
-                cache.setdefault(cache_key, []).append(result)
+                _put_cached_result(cache_key, result)
     finally:
         if callback:
             callback()
@@ -627,4 +616,4 @@ def clear_cache():
     Clear the speed test cache
     """
     global cache
-    cache = {}
+    cache = OrderedDict()

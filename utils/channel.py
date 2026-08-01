@@ -1,6 +1,10 @@
 import asyncio
 import gzip
 import json
+try:
+    import orjson as _orjson
+except Exception:
+    _orjson = None
 import math
 import os
 import pickle
@@ -27,6 +31,7 @@ from utils.tools import (
     get_name_value,
     check_url_by_keywords,
     get_total_urls,
+    iter_total_urls,
     add_url_info,
     resource_path,
     get_name_urls_from_file,
@@ -517,8 +522,29 @@ async def test_speed(data, ipv6=False, callback=None, on_task_complete=None):
     get_resolution = config.open_filter_resolution and check_ffmpeg_installed_status()
     semaphore = asyncio.Semaphore(config.speed_test_limit)
     logger = get_logger(constants.speed_test_log_path, level=INFO, init=True)
+    shared_host_tasks: dict[str, asyncio.Task] = {}
+    shared_host_lock = asyncio.Lock()
 
     async def limited_get_speed(channel_info):
+        if config.speed_test_filter_host:
+            host = channel_info.get("host")
+            if host:
+                async with shared_host_lock:
+                    existing_task = shared_host_tasks.get(host)
+                    if existing_task is None:
+                        existing_task = asyncio.create_task(_limited_get_speed_impl(channel_info))
+                        shared_host_tasks[host] = existing_task
+                        def _clear_host_task(_task, _host=host):
+                            try:
+                                if shared_host_tasks.get(_host) is _task:
+                                    shared_host_tasks.pop(_host, None)
+                            except Exception:
+                                pass
+                        existing_task.add_done_callback(_clear_host_task)
+                return await existing_task
+        return await _limited_get_speed_impl(channel_info)
+
+    async def _limited_get_speed_impl(channel_info):
         async with semaphore:
             headers = (open_headers and channel_info.get("headers")) or None
             return await get_speed(
@@ -730,18 +756,20 @@ def process_write_content(
         channel_obj_keys = channel_obj.keys()
         for i, name in enumerate(channel_obj_keys):
             info_list = data.get(cate, {}).get(name, [])
-            channel_urls = get_total_urls(info_list, ipv_type_prefer, origin_type_prefer, rtmp_type)
-            result_data[name].extend(channel_urls)
-            if not channel_urls:
-                if open_empty_category:
-                    no_result_name.append(name)
-                continue
+            channel_urls = iter_total_urls(info_list, ipv_type_prefer, origin_type_prefer, rtmp_type)
+            has_url = False
             for item in channel_urls:
+                has_url = True
+                result_data[name].append(item)
                 item_url = item["url"]
                 if open_url_info and item["extra_info"]:
                     item_url = add_url_info(item_url, item["extra_info"])
                 total_item_url = f"{hls_url}/{item['id']}.m3u8" if hls_url else item_url
                 content += f"\n{name},{total_item_url}"
+            if not has_url:
+                if open_empty_category:
+                    no_result_name.append(name)
+                continue
     if open_empty_category and no_result_name and is_last:
         custom_print(f"\n{t("msg.no_result_channel")}")
         content += f"\n\n{t("content.no_result_channel")},#genre#"
@@ -785,7 +813,7 @@ def process_write_content(
                     for item in data_list:
                         cursor.execute(
                             "INSERT OR REPLACE INTO result_data (id, url, headers) VALUES (?, ?, ?)",
-                            (item["id"], item["url"], json.dumps(item.get("headers", None)))
+                            (item["id"], item["url"], (_orjson.dumps(item.get("headers", None)).decode('utf-8') if _orjson else json.dumps(item.get("headers", None))))
                         )
                 conn.commit()
             finally:

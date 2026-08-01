@@ -1,11 +1,17 @@
 import copy
 import datetime
 import json
+try:
+    import orjson as _orjson
+except Exception:
+    _orjson = None
 import logging
 import os
 import re
 import shutil
 import sys
+import concurrent.futures
+import os
 from collections import defaultdict
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -18,6 +24,7 @@ import requests
 from bs4 import BeautifulSoup
 from flask import send_file, make_response
 from opencc import OpenCC
+from utils.requests.tools import get_requests
 
 import utils.constants as constants
 from utils.config import config, resource_path
@@ -159,8 +166,13 @@ def get_soup(source):
         source,
         flags=re.DOTALL,
     )
-    soup = BeautifulSoup(source, "html.parser")
-    return soup
+    # use a shared threadpool for HTML parsing to limit concurrent CPU-bound parsing
+    if not hasattr(get_soup, "_executor"):
+        get_soup._executor = concurrent.futures.ThreadPoolExecutor(
+            max_workers=min(8, max(2, (os.cpu_count() or 1) * 2))
+        )
+    future = get_soup._executor.submit(BeautifulSoup, source, "html.parser")
+    return future.result()
 
 
 def get_resolution_value(resolution_str):
@@ -179,9 +191,9 @@ def get_resolution_value(resolution_str):
     return 0
 
 
-def get_total_urls(info_list: list[ChannelData], ipv_type_prefer, origin_type_prefer, rtmp_type=None) -> list:
+def iter_total_urls(info_list: list[ChannelData], ipv_type_prefer, origin_type_prefer, rtmp_type=None):
     """
-    Get the total urls from info list
+    Yield the total urls from info list without building a large intermediate list.
     """
     ipv_prefer_bool = bool(ipv_type_prefer)
     origin_prefer_bool = bool(origin_type_prefer)
@@ -190,7 +202,9 @@ def get_total_urls(info_list: list[ChannelData], ipv_type_prefer, origin_type_pr
     if not origin_prefer_bool:
         origin_type_prefer = ["all"]
     categorized_urls = {origin: {ipv_type: [] for ipv_type in ipv_type_prefer} for origin in origin_type_prefer}
-    total_urls = []
+    yielded = 0
+    urls_limit = config.urls_limit
+
     for info in info_list:
         channel_id, url, origin, resolution, url_ipv_type, extra_info = (
             info["id"],
@@ -205,13 +219,17 @@ def get_total_urls(info_list: list[ChannelData], ipv_type_prefer, origin_type_pr
 
         if origin == "hls":
             if not rtmp_type or (rtmp_type and origin in rtmp_type):
-                total_urls.append(info)
-                continue
-            else:
-                continue
+                yield info
+                yielded += 1
+            if yielded >= urls_limit:
+                return
+            continue
 
         if origin == "whitelist":
-            total_urls.append(info)
+            yield info
+            yielded += 1
+            if yielded >= urls_limit:
+                return
             continue
 
         if origin_prefer_bool and (origin not in origin_type_prefer):
@@ -229,23 +247,28 @@ def get_total_urls(info_list: list[ChannelData], ipv_type_prefer, origin_type_pr
         else:
             categorized_urls[origin]["all"].append(info)
 
-    urls_limit = config.urls_limit
     for origin in origin_type_prefer:
-        if len(total_urls) >= urls_limit:
+        if yielded >= urls_limit:
             break
         for ipv_type in ipv_type_prefer:
-            if len(total_urls) >= urls_limit:
+            if yielded >= urls_limit:
                 break
             urls = categorized_urls[origin].get(ipv_type, [])
             if not urls:
                 continue
-            remaining = urls_limit - len(total_urls)
-            limit_urls = urls[:remaining]
-            total_urls.extend(limit_urls)
+            remaining = urls_limit - yielded
+            for info in urls[:remaining]:
+                yield info
+                yielded += 1
+                if yielded >= urls_limit:
+                    return
 
-    total_urls = total_urls[:urls_limit]
 
-    return total_urls
+def get_total_urls(info_list: list[ChannelData], ipv_type_prefer, origin_type_prefer, rtmp_type=None) -> list:
+    """
+    Get the total urls from info list.
+    """
+    return list(iter_total_urls(info_list, ipv_type_prefer, origin_type_prefer, rtmp_type))
 
 
 def get_total_urls_from_sorted_data(data):
@@ -268,8 +291,8 @@ def check_ipv6_support():
     url = "https://ipv6.tokyo.test-ipv6.com/ip/?callback=?&testdomain=test-ipv6.com&testname=test_aaaa"
     try:
         print(t("msg.check_ipv6_support"))
-        response = requests.get(url, timeout=10)
-        if response.status_code == 200:
+        response = get_requests(url, timeout=10)
+        if response and response.status_code == 200:
             print(t("msg.ipv6_supported"))
             return True
     except Exception:
@@ -751,8 +774,15 @@ def get_version_info():
     """
     Get the version info
     """
-    with open(resource_path("version.json"), "r", encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        if _orjson:
+            with open(resource_path("version.json"), "rb") as f:
+                return _orjson.loads(f.read())
+        else:
+            with open(resource_path("version.json"), "r", encoding="utf-8") as f:
+                return json.load(f)
+    except Exception:
+        return {}
 
 
 def join_url(url1: str, url2: str) -> str:
