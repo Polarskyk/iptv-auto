@@ -56,9 +56,6 @@ jobs:
           name: ${{ env.name }}-v${{ env.version }}
           path: dist\${{ env.name }}-v${{ env.version }}.zip
 
-      - name: Install jq
-        run: choco install jq
-
       - name: Get changelog
         id: get_changelog
         run: |
@@ -67,22 +64,26 @@ jobs:
           $changelog = [regex]::Match($changelog, "(?s)## v$version.*?(?=## v)").Value
           $changelog = $changelog -replace "(?s)^## v$version.*?\n", ""
           $changelog = $changelog.Trim()
-          $changelog | jq -Rs '.' | ForEach-Object { echo "changelog=$_"; echo "changelog=$_" >> $env:GITHUB_ENV }
+          Set-Content -Path release-notes.md -Value $changelog -Encoding utf8
+          "RELEASE_NOTES_FILE=$((Resolve-Path release-notes.md).Path)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
         shell: pwsh
 
       - name: Create or update Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ env.version }}
-          name: v${{ env.version }}
-          body: ${{ fromJSON(env.changelog) }}
-          draft: false
-          prerelease: false
-          files: |
-            dist/${{ env.name }}-v${{ env.version }}.zip
-          overwrite_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: pwsh
+        run: |
+          $tagName = "${{ env.version }}"
+          $releaseName = "v${{ env.version }}"
+          $assetPath = "dist/${{ env.name }}-v${{ env.version }}.zip"
+
+          gh release view $tagName --json tagName *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release edit $tagName --title $releaseName --notes-file $env:RELEASE_NOTES_FILE
+            gh release upload $tagName $assetPath --clobber
+          } else {
+            gh release create $tagName $assetPath --title $releaseName --notes-file $env:RELEASE_NOTES_FILE
+          }
 
   docker:
     runs-on: ubuntu-latest
