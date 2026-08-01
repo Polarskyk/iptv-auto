@@ -397,20 +397,17 @@ def check_ffmpeg_installed_status():
     """
     Check ffmpeg is installed
     """
-    # Use shutil.which to avoid spawning a process just to check presence
     try:
         import shutil
-        return shutil.which("ffmpeg") is not None
+        status = shutil.which("ffmpeg") is not None
     except Exception:
-        return False
-    except Exception as e:
-        print(e)
-    finally:
-        if status:
-            print(t("msg.ffmpeg_installed"))
-        else:
-            print(t("msg.ffmpeg_not_installed"))
-        return status
+        status = False
+
+    if status:
+        print(t("msg.ffmpeg_installed"))
+    else:
+        print(t("msg.ffmpeg_not_installed"))
+    return status
 
 
 from utils.ffmpeg_pool import run_ffmpeg
