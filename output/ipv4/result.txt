@@ -1,5 +1,5 @@
 🕘️更新时间,#genre#
-2026-08-06 16:31:48,rtmp://39.108.129.193:1935/cctv1/1sao
+2026-08-06 20:08:05,rtmp://39.108.129.193:1935/cctv1/1sao
 
 📺央视频道,#genre#
 CCTV-1,rtmp://39.108.129.193:1935/cctv1/1sao
@@ -17,7 +17,6 @@ CCTV-7,rtmp://39.108.129.193:1935/cv7/n6v4_cv7
 CCTV-8,rtmp://39.108.129.193:1935/cv8/rreo_cv8
 CCTV-9,rtmp://39.108.129.193:1935/cv9/jr0g_cv9
 CCTV-9,http://198.204.228.26/live/cctv9hd.m3u8
-CCTV-9,http://107.150.60.122/live/cctv9hd.m3u8
 CCTV-9,http://74.91.26.218:82/live/cctv9hd.m3u8
 CCTV-10,rtmp://39.108.129.193:1935/cv10/3fy8_cv10
 CCTV-10,http://198.204.228.26/live/cctv10hd.m3u8
@@ -31,8 +30,8 @@ CCTV-14,rtmp://39.108.129.193:1935/cv14/16rk_cv14
 CCTV-14,http://198.204.228.26/live/cctv14hd.m3u8
 CCTV-14,http://74.91.26.218:82/live/cctv14hd.m3u8
 CCTV-15,rtmp://39.108.129.193:1935/cv15/zvk0_cv15
-CCTV-15,http://63.141.230.178:82/gslb/zbdq5.m3u8?id=cctv15hd
 CCTV-15,http://74.91.26.218:82/live/cctv15hd.m3u8
+CCTV-15,http://63.141.230.178:82/gslb/zbdq5.m3u8?id=cctv15hd
 CCTV-16,rtmp://ayrtsocndali.v.myalicdn.com/ayocnd/4kcctv16_2pd
 CETV-3,http://192.151.150.154/live/cetv3.m3u8
 
