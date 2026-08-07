@@ -1,5 +1,5 @@
 🕘️更新时间,#genre#
-2026-08-06 20:08:05,rtmp://39.108.129.193:1935/cctv1/1sao
+2026-08-07 09:35:59,rtmp://39.108.129.193:1935/cctv1/1sao
 
 📺央视频道,#genre#
 CCTV-1,rtmp://39.108.129.193:1935/cctv1/1sao
@@ -465,8 +465,8 @@ CETV-4,http://gslbmgsplive.miguvideo.com/migu/kailu/cetv4/50/20240709/index.m3u8
 重庆卫视,http://gslbmgsplive.miguvideo.com/envivo_x/2018/SD/chongqing/1000/index.m3u8?msisdn=2026021614002707da43ff265b47ee82a64bdb9d39a227&mdspid=&spid=600697&netType=0&sid=5910022305&pid=2028597139&timestamp=20260216140027&Channel_ID=0116_2600000900-99000-201600010010027&ProgramID=738910914&ParentNodeID=-99&assertID=5910022305&client_ip=43.139.160.244&SecurityKey=20260216140027&promotionId=&mvid=5900004329&mcid=500020&playurlVersion=ZQ-A1-9.2.1-RELEASE&userid=&jmhm=&videocodec=h264&appCode=miguvideo_android&bean=mgspad&tid=android&conFee=0&puData=7718cfe44477a8b04946c48fd3e567c9&ddCalcu=97c7e7116885c0ef3ed4f48447c76a489b40
 重庆卫视,http://mgsp-zy2.live.miguvideo.com:8088/envivo_x/2018/SD/chongqing/1000/index.m3u8?msisdn=e55e9ee71b42d2d7008a152c069625e3&mdspid=&spid=600697&netType=0&sid=5910022305&pid=2028597139&timestamp=20260216160235&Channel_ID=0116_2600034600-99000-201600010010028&ProgramID=738910914&ParentNodeID=-99&assertID=5910022305&client_ip=218.28.233.106&SecurityKey=20260216160235&promotionId=&mvid=5900004329&mcid=500020&playurlVersion=WX-A1-9.2.1-RELEASE&userid=&jmhm=&videocodec=h264&appCode=miguvideo_android&bean=mgspad&tid=android&conFee=0&encrypt=1beb4c3f54b8849d736dfb72e51c76f1&sv=10004&ct=android
 东方卫视,rtmp://39.108.129.193:1935/dfws/6um8_dfws
-东方卫视,http://74.91.26.218:82/live/dfwshd.m3u8
 东方卫视,http://38.75.136.137:98/gslb/dsdqpub/dfwshd.m3u8?auth=testpub
+东方卫视,http://74.91.26.218:82/live/dfwshd.m3u8
 东方卫视,http://[2409:8087:8:21::18]:6610/otttv.bj.chinamobile.com/PLTV/88888888/224/3221226898/1.m3u8?GuardEncType=2&accountinfo=%7E%7EV2.0%7E0uh4lyjjBCCN7TCq21vSIQ%7EtP4-l0lmSfjwLWEfK_el1vH_mv-s1zo4AQJwdedaVwG9xkuFTDg8J26cwOrNJzn20BErrHdLhuZ9EzLUCD3PMW-OMx4MGteHV2vLeW6BqoY%2CEND
 东方卫视,http://mgsp-yx2.live.miguvideo.com:8088/migu/kailu/dongfanghd265/51/20191230/index.m3u8?msisdn=e55e9ee71b42d2d7008a152c069625e3&mdspid=&spid=600697&netType=0&sid=5910022185&pid=2028597139&timestamp=20260214220204&Channel_ID=0116_2600034600-99000-201600010010028&ProgramID=651632648&ParentNodeID=-99&assertID=5910022185&client_ip=218.28.233.106&SecurityKey=20260214220204&promotionId=&mvid=5100043384&mcid=500020&playurlVersion=WX-A1-9.2.1-RELEASE&userid=&jmhm=&videocodec=h265&appCode=miguvideo_android&bean=mgspad&tid=android&conFee=0&encrypt=7ee1a31df3c20dc1cdf3c468123119dc&sv=10004&ct=android
 东方卫视,http://iptv.huuc.edu.cn/hls/dfhd.m3u8
@@ -510,7 +510,6 @@ CETV-4,http://gslbmgsplive.miguvideo.com/migu/kailu/cetv4/50/20240709/index.m3u8
 甘肃卫视,https://stream1.freetv.fun/a02db9fe70a5be35dac6d861e1c3f67dd6f979c1f5a22c40d07429f91d4d32b8.m3u8
 甘肃卫视,https://stream1.freetv.fun/e59f02136e33a2fdd6d0bfa0cab8e9eafef1644dd75e2b8bd53459d7a0b3503e.m3u8
 广西卫视,rtmp://live.gxrb.com.cn/hls/a23
-广西卫视,http://107.150.60.122/live/gxwshd.m3u8
 广西卫视,http://[2409:8087:8:21::18]:6610/otttv.bj.chinamobile.com/PLTV/88888888/224/3221227010/1.m3u8?GuardEncType=2&accountinfo=%7E%7EV2.0%7EkAhb-89sxdm9fz6-heXCuw%7EtP4-l0lmSfjwLWEfK_el1vH_mv-s1zo4AQJwdedaVwG9xkuFTDg8J26cwOrNJzn20BErrHdLhuZ9EzLUCD3PMW-OMx4MGteHV2vLeW6BqoY%2CEND
 广西卫视,https://hlscdn.liangtv.cn/live/0c4ef3a44b934cacb8b47121dfada66c/d7e04258157b480dae53883cc6f8123b.m3u8
 广西卫视,http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226380/index.m3u8
@@ -524,6 +523,7 @@ CETV-4,http://gslbmgsplive.miguvideo.com/migu/kailu/cetv4/50/20240709/index.m3u8
 广西卫视,https://stream1.freetv.fun/9d8f557625e727926e98f5965bb2209962df72268884e60cb60e820e364e5b91.m3u8
 广西卫视,https://stream1.freetv.fun/cd3ee6408c3bd6eb788abbf61f06cdedd3e2a62e4d6d500e23148b9ab887d7a5.m3u8
 广西卫视,https://t.freetv.fun/live/yan-xi-wei-shi-5.m3u8
+广西卫视,https://stream1.freetv.fun/86f11ddc0a95dc6a89f6959e3a8f5ad5cc1312fc051bf5d38dd925ba23ae5b2a.m3u8
 贵州卫视,http://[2409:8087:8:21::18]:6610/otttv.bj.chinamobile.com/PLTV/88888888/224/3221227012/1.m3u8?GuardEncType=2&accountinfo=%7E%7EV2.0%7EnqBF03rFwPucF8ODtWxLQQ%7EtP4-l0lmSfjwLWEfK_el1vH_mv-s1zo4AQJwdedaVwG9xkuFTDg8J26cwOrNJzn20BErrHdLhuZ9EzLUCD3PMW-OMx4MGteHV2vLeW6BqoY%2CEND
 贵州卫视,http://[2409:8087:1a01:df::4077]/ottrrs.hl.chinamobile.com/PLTV/88888888/8/3221226474/index.m3u8
 贵州卫视,http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226474/index.m3u8
@@ -916,8 +916,8 @@ CETV-4,http://gslbmgsplive.miguvideo.com/migu/kailu/cetv4/50/20240709/index.m3u8
 广东民生,https://stream1.freetv.fun/yan-dong-min-sheng-27.ctv
 广东民生,https://stream1.freetv.fun/yan-dong-min-sheng-1.ctv
 广东民生,https://stream1.freetv.fun/yan-dong-min-sheng-32.ctv
-大湾区卫视,http://74.91.26.218:82/live/nfws.m3u8
 大湾区卫视,http://107.150.60.122/live/nfws.m3u8
+大湾区卫视,http://74.91.26.218:82/live/nfws.m3u8
 大湾区卫视,http://gslbmgsplive.miguvideo.com/wd_r3/2018/nfmedia/nfws/1000/index.m3u8?msisdn=202602142200160592b91ce12145b5afbc3679c0f13254&mdspid=&spid=699054&netType=0&sid=2200322852&pid=2028597139&timestamp=20260214220016&Channel_ID=0116_2600000900-99000-201600010010027&ProgramID=608917627&ParentNodeID=-99&assertID=2200322852&client_ip=43.139.160.244&SecurityKey=20260214220016&promotionId=&mvid=2200322852&mcid=500020&playurlVersion=ZQ-A1-9.2.1-RELEASE&userid=&jmhm=&videocodec=h264&appCode=miguvideo_android&bean=mgspad&tid=android&conFee=0&puData=39e874983f13ccbbf9dc4147ead22eba&ddCalcu=a3b9eee1288270d4a9e8734f1143ccdc9bfb
 大湾区卫视,http://gslbmgsplive.miguvideo.com/wd_r3/2018/nfmedia/nfws/1000/index.m3u8?msisdn=202602150400180e8aa8ee22fa44bbba94a72e62e15ad2&mdspid=&spid=699054&netType=0&sid=2200322852&pid=2028597139&timestamp=20260215040018&Channel_ID=0116_2600000900-99000-201600010010027&ProgramID=608917627&ParentNodeID=-99&assertID=2200322852&client_ip=43.139.160.244&SecurityKey=20260215040018&promotionId=&mvid=2200322852&mcid=500020&playurlVersion=ZQ-A1-9.2.1-RELEASE&userid=&jmhm=&videocodec=h264&appCode=miguvideo_android&bean=mgspad&tid=android&conFee=0&puData=d620031e1f7f52c64e8016f3334b1ae3&ddCalcu=3de6ea21108b0043313e31ff671f0582ec46
 大湾区卫视,http://gslbmgsplive.miguvideo.com/wd_r3/2018/nfmedia/nfws/1000/index.m3u8?msisdn=20260215140020c6deb1a2ad21437493df6a5a9c874355&mdspid=&spid=699054&netType=0&sid=2200322852&pid=2028597139&timestamp=20260215140020&Channel_ID=0116_2600000900-99000-201600010010027&ProgramID=608917627&ParentNodeID=-99&assertID=2200322852&client_ip=43.139.160.244&SecurityKey=20260215140020&promotionId=&mvid=2200322852&mcid=500020&playurlVersion=ZQ-A1-9.2.1-RELEASE&userid=&jmhm=&videocodec=h264&appCode=miguvideo_android&bean=mgspad&tid=android&conFee=0&puData=a1b65076a074ab1c90443640adcfae7b&ddCalcu=ba71eeb1a68f50c0d7a60a4067344a4b019c
