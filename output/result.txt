@@ -1,5 +1,5 @@
 🕘️更新时间,#genre#
-2026-08-16 14:36:43,rtmp://39.108.129.193:1935/cctv1/1sao
+2026-08-16 18:23:57,rtmp://39.108.129.193:1935/cctv1/1sao
 
 📺央视频道,#genre#
 CCTV-1,rtmp://39.108.129.193:1935/cctv1/1sao
@@ -375,7 +375,6 @@ CETV-4,http://gslbmgsplive.miguvideo.com/migu/kailu/cetv4/50/20240709/index.m3u8
 浙江卫视,https://stream1.freetv.fun/98c2b365be87cf4c2159356795b46f802156d44b9752f5948ae7f2b3b7f323f0.m3u8
 浙江卫视,https://stream1.freetv.fun/2d006495025116b5eeae6ac133fca1ea2ed38b48c255994add6b2153026222f5.m3u8
 湖南卫视,rtmp://39.108.129.193:1935/hnws/nz40_hnws
-湖南卫视,http://63.141.230.178:82/gslb/zbdq5.m3u8?id=hnwshd
 湖南卫视,http://[2409:8087:8:21::18]:6610/otttv.bj.chinamobile.com/PLTV/88888888/224/3221226509/1.m3u8?zoneoffset=480&servicetype=1&icpid=&limitflux=-1&limitdur=-1&tenantId=8601&accountinfo=%7E%7EV2.0%7EIGb_ib7rnBX9_sANRKq9sg%7EpK8OKM5JoJWWbLRyLfPcUMkwWZ90MzSI9S9PDltJsYzd0ZGcS3Tkh7syciNKJa-w60mDOdwtDyoNwCx9aRgzHNH9AUREV_qvNJtXHRPzYw0%7EExtInfo9bj61dxzlMXrsixrqcFYPg%3D%3D%3A20221022013542%2C915973%2C119.123.71.209%2C20221022013542%2C10000100000000050000000003873458%2C915973%2C-1%2C0%2C1%2C%2C%2C2%2C%2C%2C%2C2%2C%2C10000100000000060000000007253514_0%2CEND&GuardEncType=2
 湖南卫视,http://iptv.huuc.edu.cn/hls/hunanhd.m3u8
 湖南卫视,http://[2409:8087:1a01:df::4077]/ottrrs.hl.chinamobile.com/PLTV/88888888/8/3221226430/index.m3u8
@@ -389,6 +388,7 @@ CETV-4,http://gslbmgsplive.miguvideo.com/migu/kailu/cetv4/50/20240709/index.m3u8
 湖南卫视,https://stream1.freetv.fun/617c2068ca028b4d07e68696983047275cd46704b115ff77f296339e05bc5080.m3u8
 湖南卫视,https://stream1.freetv.fun/b06a69fc1f704977ea40e8cdacc211ffb6c3b0b4713504f7fe7383cba1decd31.m3u8
 湖南卫视,https://stream1.freetv.fun/3addbcd2d23c56ddc32c16f652c4718410dc3e760468b4b14a33cfc2a7e84d52.m3u8
+湖南卫视,https://stream1.freetv.fun/855f864a753430bdff0af1fa8b70958abde850657a3a03ebffc59580f6b826ae.m3u8
 北京卫视,rtmp://39.108.129.193:1935/beijing/ys8w_beijing
 北京卫视,http://[2409:8087:8:21::18]:6610/otttv.bj.chinamobile.com/PLTV/88888888/224/3221226900/1.m3u8?GuardEncType=2&accountinfo=%7E%7EV2.0%7EcYPi33WFyhvd6SjmqUKhJg%7EtP4-l0lmSfjwLWEfK_el1vH_mv-s1zo4AQJwdedaVwG9xkuFTDg8J26cwOrNJzn20BErrHdLhuZ9EzLUCD3PMW-OMx4MGteHV2vLeW6BqoY%2CEND
 北京卫视,http://mgsp-yx2.live.miguvideo.com:8088/migu/kailu/bjws/51/20251127/index.m3u8?msisdn=e55e9ee71b42d2d7008a152c069625e3&mdspid=&spid=600697&netType=0&sid=5910022306&pid=2028597139&timestamp=20260214200207&Channel_ID=0116_2600034600-99000-201600010010028&ProgramID=630287636&ParentNodeID=-99&assertID=5910022306&client_ip=218.28.233.106&SecurityKey=20260214200207&promotionId=&mvid=5101042960&mcid=500020&playurlVersion=WX-A1-9.2.1-RELEASE&userid=&jmhm=&videocodec=h264&appCode=miguvideo_android&bean=mgspad&tid=android&conFee=0&encrypt=47c0675075a4b171db7f0e406ecfee07&sv=10004&ct=android
