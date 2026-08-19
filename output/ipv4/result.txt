@@ -1,5 +1,5 @@
 🕘️更新时间,#genre#
-2026-08-19 18:28:51,rtmp://39.108.129.193:1935/cctv1/1sao
+2026-08-20 06:25:40,rtmp://39.108.129.193:1935/cctv1/1sao
 
 📺央视频道,#genre#
 CCTV-1,rtmp://39.108.129.193:1935/cctv1/1sao
@@ -17,7 +17,6 @@ CCTV-8,rtmp://39.108.129.193:1935/cv8/rreo_cv8
 CCTV-9,rtmp://39.108.129.193:1935/cv9/jr0g_cv9
 CCTV-9,http://74.91.26.218:82/live/cctv9hd.m3u8
 CCTV-10,rtmp://39.108.129.193:1935/cv10/3fy8_cv10
-CCTV-10,http://63.141.230.178:82/gslb/zbdq5.m3u8?id=cctv10hd
 CCTV-11,rtmp://39.108.129.193:1935/cv11/gjnk_cv11
 CCTV-12,rtmp://39.108.129.193:1935/cv12/m8w0_cv12
 CCTV-13,rtmp://39.108.129.193:1935/cv13/qa9s_cv13
