@@ -1,13 +1,11 @@
 🕘️更新时间,#genre#
-2026-08-29 11:33:29,rtmp://39.108.129.193:1935/cctv1/1sao
+2026-08-29 20:14:18,rtmp://39.108.129.193:1935/cctv1/1sao
 
 📺央视频道,#genre#
 CCTV-1,rtmp://39.108.129.193:1935/cctv1/1sao
 CCTV-2,rtmp://39.108.129.193:1935/cv2/mx6o_cv2
-CCTV-2,http://107.150.60.122/live/cctv2hd.m3u8
 CCTV-3,rtmp://39.108.129.193:1935/cv3/yxz4_cv3
 CCTV-4,rtmp://39.108.129.193:1935/cv4/3wqo_cv4
-CCTV-4,http://107.150.60.122/live/cctv4hd.m3u8
 CCTV-5,rtmp://ayrtsocndali.v.myalicdn.com/ayocnd/aoyuncctv5_2pd
 CCTV-5,rtmp://39.108.129.193:1935/cv5/6mio_cv5
 CCTV-5+,rtmp://ayrtsocndali.v.myalicdn.com/ayocnd/aoyuncctv5plus_2pd
@@ -44,3 +42,4 @@ CETV-3,http://192.151.150.154/live/cetv3.m3u8
 
 ☘️广东频道,#genre#
 大湾区卫视,http://74.91.26.218:82/live/nfws.m3u8
+广州综合,http://tencentplaygzrb01.gztv.com/live/zonghes.m3u8
