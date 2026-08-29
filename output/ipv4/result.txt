@@ -1,5 +1,5 @@
 🕘️更新时间,#genre#
-2026-08-29 20:14:18,rtmp://39.108.129.193:1935/cctv1/1sao
+2026-08-30 07:57:11,rtmp://39.108.129.193:1935/cctv1/1sao
 
 📺央视频道,#genre#
 CCTV-1,rtmp://39.108.129.193:1935/cctv1/1sao
@@ -42,4 +42,3 @@ CETV-3,http://192.151.150.154/live/cetv3.m3u8
 
 ☘️广东频道,#genre#
 大湾区卫视,http://74.91.26.218:82/live/nfws.m3u8
-广州综合,http://tencentplaygzrb01.gztv.com/live/zonghes.m3u8
