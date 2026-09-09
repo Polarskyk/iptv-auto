@@ -1,5 +1,5 @@
 #EXTM3U x-tvg-url="https://raw.githubusercontent.com/Polarskyk/iptv-auto/refs/heads/master/output/epg/epg.gz"
-#EXTINF:-1 tvg-name="CCTV-1" tvg-logo="http://10.1.0.13:5180/logo/CCTV-1.png" group-title="🕘️更新时间",2026-09-09 18:43:09
+#EXTINF:-1 tvg-name="CCTV-1" tvg-logo="http://10.1.0.13:5180/logo/CCTV-1.png" group-title="🕘️更新时间",2026-09-10 07:52:49
 rtmp://39.108.129.193:1935/cctv1/1sao
 #EXTINF:-1 tvg-name="CCTV-1" tvg-logo="http://10.1.0.13:5180/logo/CCTV-1.png" group-title="📺央视频道",CCTV-1
 rtmp://39.108.129.193:1935/cctv1/1sao
