@@ -1,5 +1,5 @@
 🕘️更新时间,#genre#
-2026-09-14 07:58:05,rtmp://39.108.129.193:1935/cctv1/1sao
+2026-09-14 19:36:47,rtmp://39.108.129.193:1935/cctv1/1sao
 
 📺央视频道,#genre#
 CCTV-1,rtmp://39.108.129.193:1935/cctv1/1sao
@@ -24,7 +24,6 @@ CCTV-16,rtmp://ayrtsocndali.v.myalicdn.com/ayocnd/4kcctv16_2pd
 
 📡卫视频道,#genre#
 广东卫视,rtmp://39.108.129.193:1935/gdws/ia9s_gdws
-广东卫视,http://74.91.26.218:82/live/gdwshd.m3u8
 浙江卫视,rtmp://39.108.129.193:1935/zjws/ocqo_zjws
 湖南卫视,rtmp://39.108.129.193:1935/hnws/nz40_hnws
 北京卫视,rtmp://39.108.129.193:1935/beijing/ys8w_beijing
