@@ -1,5 +1,5 @@
 🕘️更新时间,#genre#
-2026-09-25 19:04:52,rtmp://39.108.129.193:1935/cctv1/1sao
+2026-09-26 08:25:45,rtmp://39.108.129.193:1935/cctv1/1sao
 
 📺央视频道,#genre#
 CCTV-1,rtmp://39.108.129.193:1935/cctv1/1sao
@@ -34,3 +34,4 @@ CCTV-16,rtmp://ayrtsocndali.v.myalicdn.com/ayocnd/4kcctv16_2pd
 山东卫视,rtmp://39.108.129.193:1935/shandong/1qww_shandong
 
 ☘️广东频道,#genre#
+广州综合,http://tencentplaygzrb01.gztv.com/live/zonghes.m3u8
