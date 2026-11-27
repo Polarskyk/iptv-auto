@@ -1,5 +1,5 @@
 🕘️更新时间,#genre#
-2026-11-27 00:18:40,rtmp://39.108.129.193:1935/cctv1/1sao
+2026-11-27 12:00:32,rtmp://39.108.129.193:1935/cctv1/1sao
 
 📺央视频道,#genre#
 CCTV-1,rtmp://39.108.129.193:1935/cctv1/1sao
@@ -28,6 +28,7 @@ CCTV-16,rtmp://ayrtsocndali.v.myalicdn.com/ayocnd/4kcctv16_2pd
 北京卫视,rtmp://39.108.129.193:1935/beijing/ys8w_beijing
 东方卫视,rtmp://39.108.129.193:1935/dfws/6um8_dfws
 广西卫视,rtmp://live.gxrb.com.cn/hls/a23
+河北卫视,https://yangshipin.cn/tv/home?pid=600002493
 河南卫视,rtmp://39.108.129.193:1935/henan/zam8_henan
 江苏卫视,rtmp://39.108.129.193:1935/jsws/5f9c_jsws
 辽宁卫视,rtmp://39.108.129.193:1935/liaoning/k2v4_liaoning
